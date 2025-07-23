@@ -33,12 +33,24 @@ export const TextInput: React.FC<TextInputProps> = ({
     onChange(newValue);
   };
 
-  const defaultHelperText = isDebounced ? "Search with 400ms delay" : undefined;
+  const defaultHelperText = isDebounced
+    ? {
+        full: "Search with 400ms delay",
+        short: "400ms delay",
+      }
+    : undefined;
 
   return (
     <div className="mb-4 lg:mb-6">
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-        {label}
+        <span className="hidden sm:inline">{label}</span>
+        <span className="sm:hidden">
+          {label === "Search Businesses"
+            ? "Search"
+            : label === "Postcode"
+            ? "Postcode"
+            : label}
+        </span>
       </label>
       <div className="relative">
         <input
@@ -57,7 +69,12 @@ export const TextInput: React.FC<TextInputProps> = ({
       </div>
       {(helperText || defaultHelperText) && (
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          {helperText || defaultHelperText}
+          <span className="hidden sm:inline">
+            {helperText || defaultHelperText?.full}
+          </span>
+          <span className="sm:hidden">
+            {helperText || defaultHelperText?.short}
+          </span>
         </p>
       )}
     </div>

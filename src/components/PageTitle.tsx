@@ -1,7 +1,13 @@
 import React from "react";
 import { ThemeToggle } from "./ThemeToggle";
 
-export const PageTitle = () => {
+interface PageTitleProps {
+  onCloseMobileSidebar?: () => void;
+}
+
+export const PageTitle: React.FC<PageTitleProps> = ({
+  onCloseMobileSidebar,
+}) => {
   return (
     <div className="p-4 lg:p-6 border-b border-gray-200 dark:border-gray-700">
       <div className="flex items-center justify-between">
@@ -23,15 +29,40 @@ export const PageTitle = () => {
           </div>
           <div>
             <h1 className="text-lg lg:text-xl font-bold text-gray-900 dark:text-white">
-              Businesses
+              <span className="hidden sm:inline">Business Directory</span>
+              <span className="sm:hidden">Businesses</span>
             </h1>
             <p className="text-xs lg:text-sm text-gray-500 dark:text-gray-400">
-              Find your Company
+              <span className="hidden sm:inline">
+                Find your next opportunity
+              </span>
+              <span className="sm:hidden">Find companies</span>
             </p>
           </div>
         </div>
         <div className="flex items-center space-x-2">
           <ThemeToggle />
+          {/* Mobile Close Button */}
+          {onCloseMobileSidebar && (
+            <button
+              onClick={onCloseMobileSidebar}
+              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+            >
+              <svg
+                className="w-4 h-4 text-gray-600 dark:text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
     </div>

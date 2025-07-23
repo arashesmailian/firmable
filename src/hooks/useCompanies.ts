@@ -85,6 +85,15 @@ export function useCompanies(filters: Filters, hasSearched: boolean) {
   ]);
 
   useEffect(() => {
+    if (!hasSearched) {
+      setCompanies([]);
+      setError(null);
+      setTotal(0);
+      updateHasMore(false);
+    }
+  }, [hasSearched, setTotal, updateHasMore]);
+
+  useEffect(() => {
     fetchCompanies();
   }, [fetchCompanies]);
 
@@ -92,7 +101,9 @@ export function useCompanies(filters: Filters, hasSearched: boolean) {
     setCompanies([]);
     setError(null);
     resetPagination();
-  }, [resetPagination]);
+    setTotal(0);
+    updateHasMore(false);
+  }, [resetPagination, setTotal, updateHasMore]);
 
   return {
     companies,

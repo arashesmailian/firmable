@@ -26,7 +26,6 @@ export const TextInput: React.FC<TextInputProps> = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let newValue = e.target.value;
 
-    // For postcode, only allow digits and limit to 4 characters
     if (pattern === "[0-9]{4}") {
       newValue = newValue.replace(/\D/g, "").slice(0, 4);
     }
@@ -49,16 +48,6 @@ export const TextInput: React.FC<TextInputProps> = ({
           value={value}
           onChange={handleChange}
           maxLength={maxLength}
-          style={{
-            transform: "scale(1)",
-            transition: "transform 0.2s ease",
-          }}
-          onFocus={(e) => {
-            e.target.style.transform = "scale(1.02)";
-          }}
-          onBlur={(e) => {
-            e.target.style.transform = "scale(1)";
-          }}
         />
         {icon && (
           <div className="absolute left-2 lg:left-3 top-2.5 lg:top-3.5 w-4 h-4 lg:w-5 lg:h-5 text-gray-400">

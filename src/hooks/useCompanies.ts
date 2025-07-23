@@ -1,4 +1,3 @@
-// src/hooks/useCompanies.ts
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { type Company } from "@/types/Company";

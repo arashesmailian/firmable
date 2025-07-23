@@ -43,7 +43,6 @@ export const ThemeToggle = () => {
     }
   };
 
-  // Don't render anything until mounted to avoid hydration mismatch
   if (!mounted) {
     return (
       <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">

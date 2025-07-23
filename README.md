@@ -104,7 +104,8 @@ firmable-demo/
 │   │   ├── useCompanies.ts     # Business data fetching logic
 │   │   ├── useCompanySearch.ts # Search state management
 │   │   ├── useDebounce.ts      # Debouncing utility
-│   │   └── usePagination.ts    # Pagination logic
+│   │   ├──  usePagination.ts    # Pagination logic
+│   │   └── usePagination.ts    # Detecting Device
 │   ├── lib/                    # Utility functions and configurations
 │   │   ├── supabase/          # Supabase client configuration
 │   │   └── handlers.ts        # Data transformation utilities
@@ -276,6 +277,13 @@ Manages pagination state and navigation.
 - Configurable page sizes
 - Load more functionality
 - Total count tracking
+
+### `useDeviceDetect`
+
+Provides responsive behavior based on screen size.
+
+- Detects mobile vs desktop environments
+- Enables conditional rendering for different screen sizes
 
 ## 🧩 Components
 

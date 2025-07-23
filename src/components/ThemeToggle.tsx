@@ -9,20 +9,55 @@ export const ThemeToggle = () => {
   useEffect(() => {
     setMounted(true);
 
-    // Check for saved theme preference or default to light
-    const savedTheme =
-      typeof window !== "undefined" ? localStorage.getItem("theme") : null;
+    // Get client's default color scheme preference
     const prefersDark =
       typeof window !== "undefined"
         ? window.matchMedia("(prefers-color-scheme: dark)").matches
         : false;
 
-    if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
-      setIsDark(true);
+    // Check for saved theme preference (this overrides system preference)
+    const savedTheme =
+      typeof window !== "undefined" ? localStorage.getItem("theme") : null;
+
+    // Priority: 1. Saved preference, 2. System preference, 3. Default to light
+    let shouldUseDark = false;
+
+    if (savedTheme) {
+      // If user has previously set a theme, use that
+      shouldUseDark = savedTheme === "dark";
+    } else {
+      // If no saved preference, use system preference
+      shouldUseDark = prefersDark;
+    }
+
+    setIsDark(shouldUseDark);
+
+    // Apply theme to document
+    if (shouldUseDark) {
       document.documentElement.classList.add("dark");
     } else {
-      setIsDark(false);
       document.documentElement.classList.remove("dark");
+    }
+
+    // Listen for system theme changes only if no saved preference exists
+    if (!savedTheme && typeof window !== "undefined") {
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      const handleSystemThemeChange = (e: MediaQueryListEvent) => {
+        const newIsDark = e.matches;
+        setIsDark(newIsDark);
+
+        if (newIsDark) {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+      };
+
+      mediaQuery.addEventListener("change", handleSystemThemeChange);
+
+      // Cleanup listener on component unmount
+      return () =>
+        mediaQuery.removeEventListener("change", handleSystemThemeChange);
     }
   }, []);
 
@@ -30,19 +65,20 @@ export const ThemeToggle = () => {
     const newTheme = !isDark;
     setIsDark(newTheme);
 
+    // Save user preference (this will override system preference)
+    if (typeof window !== "undefined") {
+      localStorage.setItem("theme", newTheme ? "dark" : "light");
+    }
+
+    // Apply theme to document
     if (newTheme) {
       document.documentElement.classList.add("dark");
-      if (typeof window !== "undefined") {
-        localStorage.setItem("theme", "dark");
-      }
     } else {
       document.documentElement.classList.remove("dark");
-      if (typeof window !== "undefined") {
-        localStorage.setItem("theme", "light");
-      }
     }
   };
 
+  // Don't render anything until mounted to prevent hydration mismatch
   if (!mounted) {
     return (
       <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
@@ -55,6 +91,8 @@ export const ThemeToggle = () => {
     <button
       onClick={toggleTheme}
       className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
+      title={`Switch to ${isDark ? "light" : "dark"} mode`}
+      aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
     >
       {isDark ? (
         <svg

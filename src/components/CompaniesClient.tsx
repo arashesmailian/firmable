@@ -1,126 +1,116 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useCompanies } from "@/hooks/useCompanies";
-import { useDebounce } from "@/hooks/useDebounce";
-import { GST_STATUS_OPTIONS } from "@/constants/gst_status";
-import { AUSTRALIAN_STATES } from "@/constants/au_states";
+import { useCompanySearch } from "@/hooks/useCompanySearch";
 import { type Filters } from "@/types/Filters";
 import { EmptyResult } from "./EmptyResult";
 import ResultList from "./ResultList";
+import { TextInput } from "@/components/TextInput";
+import { Dropdown } from "@/components/DropDownInput";
+import { GST_STATUS_OPTIONS } from "@/constants/gst_status";
+import { AUSTRALIAN_STATES } from "@/constants/au_states";
 
 export function CompaniesClient() {
-  const [filters, setFilters] = useState<Filters>({
-    name: "",
-    gstStatus: "",
-    state: "",
-    postcode: "",
-  });
-  const [hasSearched, setHasSearched] = useState(false);
+  // Use the custom search hook for all filter logic
+  const {
+    filters,
+    debouncedFilters,
+    hasSearched,
+    updateFilter,
+    clearFilters,
+    hasActiveFilters,
+  } = useCompanySearch();
 
-  // Debounce the name filter with 400ms delay
-  const debouncedName = useDebounce(filters.name, 400);
-  const debouncedFilters = { ...filters, name: debouncedName };
+  const {
+    companies,
+    loading,
+    error,
+    pagination,
+    loadNextPage,
+    resetPagination,
+  } = useCompanies(debouncedFilters, hasSearched);
 
-  const { companies, loading, pagination, loadNextPage, resetPagination } =
-    useCompanies(debouncedFilters, hasSearched);
+  // Handle filter changes using the hook's updateFilter function
+  const handleNameChange = (value: string) => updateFilter("name", value);
+  const handlePostcodeChange = (value: string) =>
+    updateFilter("postcode", value);
+  const handleGstStatusChange = (value: string) =>
+    updateFilter("gstStatus", value);
+  const handleStateChange = (value: string) => updateFilter("state", value);
 
-  // Handle debounced name search
+  // Reset pagination when debounced filters change
   useEffect(() => {
     if (hasSearched) {
       resetPagination();
     }
-  }, [debouncedName, hasSearched]);
-
-  const onFilterChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setFilters({ ...filters, [name]: value });
-
-    // For non-name filters, trigger search immediately
-    if (name !== "name") {
-      setHasSearched(true);
-      resetPagination();
-    }
-  };
-
-  const handleSearch = () => {
-    setHasSearched(true);
-    resetPagination();
-  };
+  }, [
+    debouncedFilters.name,
+    debouncedFilters.postcode,
+    debouncedFilters.gstStatus,
+    debouncedFilters.state,
+    hasSearched,
+    resetPagination,
+  ]);
 
   return (
     <div className="flex min-h-screen bg-gray-100 font-sans">
       {/* Sidebar */}
       <aside className="w-80 p-6 bg-white border-r min-h-screen shadow-md">
-        <h2 className="text-xl font-bold mb-6">Filters</h2>
-
-        <div className="mb-6">
-          <label className="block text-sm font-medium mb-1">
-            Business Name
-          </label>
-          <input
-            className="w-full border p-2 rounded"
-            placeholder="Search by business name"
-            value={filters.name}
-            name="name"
-            onChange={onFilterChange}
-          />
-          <p className="text-xs text-gray-500 mt-1">Search with 400ms delay</p>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold">Filters</h2>
+          {hasActiveFilters && (
+            <button
+              onClick={() => {
+                clearFilters();
+                resetPagination();
+              }}
+              className="text-sm text-blue-600 hover:text-blue-800 underline"
+            >
+              Clear All
+            </button>
+          )}
         </div>
 
-        <div className="mb-6">
-          <label className="block text-sm font-medium mb-1">GST Status</label>
-          <select
-            className="w-full border p-2 rounded"
-            value={filters.gstStatus}
-            name="gstStatus"
-            onChange={onFilterChange}
-          >
-            {GST_STATUS_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <TextInput
+          label="Business Name"
+          value={filters.name}
+          onChange={handleNameChange}
+          placeholder="Search by business name"
+          isDebounced={true}
+        />
 
-        <div className="mb-6">
-          <label className="block text-sm font-medium mb-1">State</label>
-          <select
-            className="w-full border p-2 rounded"
-            value={filters.state}
-            name="state"
-            onChange={onFilterChange}
-          >
-            {AUSTRALIAN_STATES.map((state) => (
-              <option key={state.value} value={state.value}>
-                {state.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Dropdown
+          label="GST Status"
+          value={filters.gstStatus}
+          onChange={handleGstStatusChange}
+          options={GST_STATUS_OPTIONS}
+        />
 
-        <div className="mb-6">
-          <label className="block text-sm font-medium mb-1">Postcode</label>
-          <input
-            className="w-full border p-2 rounded"
-            placeholder="4-digit postcode"
-            value={filters.postcode}
-            name="postcode"
-            onChange={onFilterChange}
-            maxLength={4}
-            pattern="[0-9]{4}"
-          />
-        </div>
+        <Dropdown
+          label="State"
+          value={filters.state}
+          onChange={handleStateChange}
+          options={AUSTRALIAN_STATES}
+        />
 
-        <button
-          onClick={handleSearch}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
-        >
-          Search
-        </button>
+        <TextInput
+          label="Postcode"
+          value={filters.postcode}
+          onChange={handlePostcodeChange}
+          placeholder="4-digit postcode"
+          maxLength={4}
+          pattern="[0-9]{4}"
+          isDebounced={true}
+        />
+
+        {hasActiveFilters && !hasSearched && (
+          <div className="mt-6 p-3 bg-blue-50 border border-blue-200 rounded">
+            <p className="text-sm text-blue-700">
+              Start typing or select options to search automatically
+            </p>
+          </div>
+        )}
       </aside>
 
       {/* Main Content */}
@@ -130,27 +120,81 @@ export function CompaniesClient() {
         </h1>
 
         <div className="bg-white rounded-xl shadow-lg p-6 overflow-x-auto">
-          {!hasSearched ? (
-            <div className="text-center text-gray-400 py-8">
-              Please use the filters to search for businesses.
+          {error && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded">
+              <p className="text-red-700">Error: {error}</p>
             </div>
-          ) : loading ? (
-            <div className="text-center text-gray-400 py-8">Loading...</div>
-          ) : companies.length ? (
-            <>
-              <div className="mb-4 text-sm text-gray-600">
-                Showing {companies.length} of {pagination.total} results
-                {pagination.page > 1 && ` (Page ${pagination.page})`}
+          )}
+
+          {!hasSearched ? (
+            <div className="text-center text-gray-400 py-12">
+              <div className="mb-4">
+                <svg
+                  className="mx-auto h-12 w-12 text-gray-300"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
               </div>
+              <h3 className="text-lg font-medium text-gray-700 mb-2">
+                Search Australian Businesses
+              </h3>
+              <p>
+                Use the filters on the left to search through 77,000+
+                businesses.
+              </p>
+              <p className="text-sm mt-2">
+                Search by name, GST status, state, or postcode.
+              </p>
+            </div>
+          ) : loading && pagination.page === 1 ? (
+            <div className="text-center text-gray-400 py-12">
+              <div className="mb-4">
+                <div className="animate-spin inline-block w-8 h-8 border-4 border-current border-t-transparent text-blue-600 rounded-full"></div>
+              </div>
+              <p>Searching businesses...</p>
+            </div>
+          ) : companies.length > 0 ? (
+            <>
+              <div className="mb-4 text-sm text-gray-600 flex justify-between items-center">
+                <span>
+                  Showing {companies.length} of{" "}
+                  {pagination.total.toLocaleString()} results
+                  {pagination.page > 1 && ` (Page ${pagination.page})`}
+                </span>
+                {pagination.total > 0 && (
+                  <span className="text-xs text-gray-500">
+                    Updated results display automatically as you type
+                  </span>
+                )}
+              </div>
+
               <ResultList companies={companies} />
+
               {pagination.hasMore && (
                 <div className="mt-6 text-center">
                   <button
                     onClick={loadNextPage}
                     disabled={loading}
-                    className="bg-gray-600 text-white py-2 px-6 rounded hover:bg-gray-700 transition-colors disabled:opacity-50"
+                    className="bg-blue-600 text-white py-2 px-6 rounded hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {loading ? "Loading..." : "Load More"}
+                    {loading ? (
+                      <>
+                        <div className="animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2"></div>
+                        Loading...
+                      </>
+                    ) : (
+                      `Load More (${(
+                        pagination.total - companies.length
+                      ).toLocaleString()} remaining)`
+                    )}
                   </button>
                 </div>
               )}

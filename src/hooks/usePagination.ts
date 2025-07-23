@@ -1,3 +1,4 @@
+// src/hooks/usePagination.ts
 import { useState, useCallback } from "react";
 import { type PaginationInfo } from "@/types/PaginationInfo";
 import { ITEMS_PER_PAGE } from "@/constants/pagination";
@@ -25,11 +26,11 @@ export function usePagination() {
     setPagination((prev) => ({ ...prev, page: 1 }));
   }, []);
 
+  // Fix: Memoize these functions to prevent infinite re-renders
   const setTotal = useCallback((total: number) => {
     setPagination((prev) => ({
       ...prev,
       total,
-      hasMore: (prev.page - 1) * prev.limit + (prev.total || 0) < total,
     }));
   }, []);
 
@@ -45,4 +46,4 @@ export function usePagination() {
     setTotal,
     updateHasMore,
   };
-} 
+}

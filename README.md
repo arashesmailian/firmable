@@ -8,18 +8,18 @@ A modern, responsive web application built with Next.js that allows users to sea
 
 ## 📋 Table of Contents
 
-- [Overview](#overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Data Pipeline](#data-pipeline)
-- [Architecture](#architecture)
-- [Getting Started](#getting-started)
-- [Environment Variables](#environment-variables)
-- [Custom Hooks](#custom-hooks)
-- [Components](#components)
-- [Database Schema](#database-schema)
-- [Performance Optimizations](#performance-optimizations)
+- [Overview](#-overview)
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Project Structure](#-project-structure)
+- [Data Pipeline](#-data-pipeline)
+- [Architecture](#-architecture)
+- [Getting Started](#-getting-started)
+- [Environment Variables](#-environment-variables)
+- [Custom Hooks](#-custom-hooks)
+- [Components](#-components)
+- [Database Schema](#-database-schema)
+- [Performance Optimizations](#-performance-optimizations)
 
 ## 🔍 Overview
 

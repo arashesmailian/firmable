@@ -9,7 +9,6 @@ interface UseCompanySearchReturn {
   updateFilter: (key: keyof Filters, value: string) => void;
   clearFilters: () => void;
   triggerSearch: () => void;
-  hasActiveFilters: boolean;
 }
 
 export function useCompanySearch(): UseCompanySearchReturn {
@@ -62,10 +61,6 @@ export function useCompanySearch(): UseCompanySearchReturn {
     setHasSearched(true);
   }, []);
 
-  const hasActiveFilters = Object.values(filters).some(
-    (value) => value.trim() !== ""
-  );
-
   // Auto-trigger search when any filter has a value
   useEffect(() => {
     const hasAnyFilter = Object.values(debouncedFilters).some(
@@ -83,6 +78,5 @@ export function useCompanySearch(): UseCompanySearchReturn {
     updateFilter,
     clearFilters,
     triggerSearch,
-    hasActiveFilters,
   };
 }
